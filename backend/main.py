@@ -5,7 +5,7 @@ from datetime import datetime
 import requests
 import os
 
-from database import SessionLocal, engine, Base
+from .database import SessionLocal, engine, Base
 from models import Batch, Faculty, ClassSchedule
 
 
