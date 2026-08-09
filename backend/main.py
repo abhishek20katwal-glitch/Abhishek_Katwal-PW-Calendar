@@ -47,7 +47,9 @@ app.add_middleware(
 ALLOWED_LOGIN_EMAILS = [
     "abishek.katwal@pw.live",
     "abhishek20.katwal@gmail.com",
-    "abhishm7052@gmail.com"
+    "abhishm7052@gmail.com",
+    "akash.kumar13@pw.live",
+    "priyabrata.behera@pw.live"
 ]
 
 class LoginVerifyRequest(BaseModel):
