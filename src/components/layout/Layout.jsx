@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
+import Header from "./Header"; // Yeh Header component ko import karega
 import { Menu } from "lucide-react";
 
 export default function Layout({ children }) {
@@ -8,7 +9,7 @@ export default function Layout({ children }) {
     return (
         <div className="flex min-h-screen bg-[#070912] text-white">
 
-            {/* Mobile Top Bar */}
+            {/* Mobile Top Bar Toggle */}
             <div className="fixed top-0 left-0 right-0 z-30 flex h-16 items-center justify-between border-b border-white/[0.06] bg-[#090b12] px-4 lg:hidden">
                 <div className="flex items-center gap-3">
                     <button
@@ -30,8 +31,11 @@ export default function Layout({ children }) {
                 onClose={() => setIsMobileMenuOpen(false)}
             />
 
-            {/* Main Content Area - Yeh sidebar ke baad se start hoga aur background dark rakhega */}
+            {/* Main Content Area with Header */}
             <main className="flex-1 flex flex-col min-w-0 pt-16 lg:pt-0 bg-[#070912] text-white overflow-x-hidden">
+                {/* Header yahan render hoga jisme Admin email, search, notifications aur logout sab hain */}
+                <Header />
+
                 <div className="flex-1 p-4 lg:p-8 overflow-y-auto w-full">
                     {children}
                 </div>
