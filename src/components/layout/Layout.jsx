@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Sidebar from "./Sidebar"; // Agar Sidebar kisi aur folder mein hai toh path check kar lena
+import Sidebar from "./Sidebar";
 import { Menu } from "lucide-react";
 
 export default function Layout({ children }) {
@@ -8,9 +8,7 @@ export default function Layout({ children }) {
     return (
         <div className="flex min-h-screen bg-[#070912] text-white">
 
-            {/* ================================================= */}
-            {/* MOBILE TOP BAR (Yeh sirf mobile/tablet par dikhega) */}
-            {/* ================================================= */}
+            {/* Mobile Top Bar (Yeh sirf mobile aur tablet par dikhega, desktop par hidden rahega) */}
             <div className="fixed top-0 left-0 right-0 z-30 flex h-16 items-center justify-between border-b border-white/[0.06] bg-[#090b12] px-4 lg:hidden">
                 <div className="flex items-center gap-3">
                     <button
@@ -26,17 +24,13 @@ export default function Layout({ children }) {
                 </div>
             </div>
 
-            {/* ================================================= */}
-            {/* SIDEBAR COMPONENT */}
-            {/* ================================================= */}
+            {/* Sidebar */}
             <Sidebar
                 isOpen={isMobileMenuOpen}
                 onClose={() => setIsMobileMenuOpen(false)}
             />
 
-            {/* ================================================= */}
-            {/* MAIN CONTENT AREA */}
-            {/* ================================================= */}
+            {/* Main Content Area (Desktop par koi padding top nahi hogi, mobile par 16 hogi) */}
             <main className="flex-1 flex flex-col min-w-0 pt-16 lg:pt-0">
                 <div className="flex-1 p-4 lg:p-8 overflow-y-auto">
                     {children}
