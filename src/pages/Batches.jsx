@@ -64,14 +64,17 @@ export default function Batches() {
     const handleCreateBatch = async (e) => {
         e.preventDefault();
         try {
-            await api.post("/batches", formData);
+            const token = localStorage.getItem("admin_token");
+            await api.post("/batches", formData, {
+                headers: { "x_admin_token": token }
+            });
 
             toast.success("Batch created successfully!");
             setIsAddOpen(false);
             setFormData({ batch_name: "", class_name: "", center: "", academic_year: "2026-27" });
             fetchBatches();
         } catch (err) {
-            toast.error("Error creating batch. Unauthorized or invalid data.");
+            toast.error(err.response?.data?.detail || "Error creating batch. Unauthorized or invalid data.");
         }
     };
 
@@ -79,28 +82,34 @@ export default function Batches() {
         e.preventDefault();
         if (!currentBatchId) return;
         try {
-            await api.put(`/batches/${currentBatchId}`, formData);
+            const token = localStorage.getItem("admin_token");
+            await api.put(`/batches/${currentBatchId}`, formData, {
+                headers: { "x_admin_token": token }
+            });
 
             toast.success("Batch updated successfully!");
             setIsEditOpen(false);
             setCurrentBatchId(null);
             fetchBatches();
         } catch (err) {
-            toast.error("Error updating batch. Unauthorized.");
+            toast.error(err.response?.data?.detail || "Error updating batch. Unauthorized.");
         }
     };
 
     const confirmDelete = async () => {
         if (!batchToDelete) return;
         try {
-            await api.delete(`/batches/${batchToDelete}`);
+            const token = localStorage.getItem("admin_token");
+            await api.delete(`/batches/${batchToDelete}`, {
+                headers: { "x_admin_token": token }
+            });
 
             toast.success("Batch deleted successfully!");
             setDeleteModalOpen(false);
             setBatchToDelete(null);
             fetchBatches();
         } catch (err) {
-            toast.error("Error deleting batch. Unauthorized.");
+            toast.error(err.response?.data?.detail || "Error deleting batch. Unauthorized.");
         }
     };
 
