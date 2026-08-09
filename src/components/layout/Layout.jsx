@@ -8,7 +8,7 @@ export default function Layout({ children }) {
     return (
         <div className="flex min-h-screen bg-[#070912] text-white">
 
-            {/* Mobile Top Bar (Yeh sirf mobile aur tablet par dikhega, desktop par hidden rahega) */}
+            {/* Mobile Top Bar */}
             <div className="fixed top-0 left-0 right-0 z-30 flex h-16 items-center justify-between border-b border-white/[0.06] bg-[#090b12] px-4 lg:hidden">
                 <div className="flex items-center gap-3">
                     <button
@@ -30,9 +30,9 @@ export default function Layout({ children }) {
                 onClose={() => setIsMobileMenuOpen(false)}
             />
 
-            {/* Main Content Area (Desktop par koi padding top nahi hogi, mobile par 16 hogi) */}
-            <main className="flex-1 flex flex-col min-w-0 pt-16 lg:pt-0">
-                <div className="flex-1 p-4 lg:p-8 overflow-y-auto">
+            {/* Main Content Area - Yeh ensure karega ki content sidebar ke niche ya overlap na ho */}
+            <main className="flex-1 flex flex-col min-w-0 pt-16 lg:pt-0 overflow-x-hidden">
+                <div className="flex-1 p-4 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
                     {children}
                 </div>
             </main>
