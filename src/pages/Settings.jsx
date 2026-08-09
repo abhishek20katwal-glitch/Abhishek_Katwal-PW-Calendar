@@ -1,5 +1,5 @@
 import api from "@/api/axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Settings as SettingsIcon, Database, Server, Bell, ShieldCheck, Sliders, ToggleLeft, ToggleRight } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,10 +12,59 @@ export default function Settings() {
     const adminEmails = ["abishek.katwal@pw.live", "abhishek20.katwal@gmail.com"];
     const isAdmin = adminEmails.includes(userEmail);
 
+    // --- CODEPEN MAGIC: Holographic Tilt, Mouse Spotlight & Magnetic Buttons ---
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            const cards = document.querySelectorAll(".glass-card");
+            cards.forEach((card) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                if (
+                    e.clientX >= rect.left &&
+                    e.clientX <= rect.right &&
+                    e.clientY >= rect.top &&
+                    e.clientY <= rect.bottom
+                ) {
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
+                } else {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)`;
+                }
+            });
+
+            const buttons = document.querySelectorAll(".magnetic-btn");
+            buttons.forEach((btn) => {
+                const rect = btn.getBoundingClientRect();
+                const btnX = rect.left + rect.width / 2;
+                const btnY = rect.top + rect.height / 2;
+                const distX = e.clientX - btnX;
+                const distY = e.clientY - btnY;
+                const distance = Math.sqrt(distX * distX + distY * distY);
+
+                if (distance < 70) {
+                    btn.style.transform = `translate(${distX * 0.3}px, ${distY * 0.3}px)`;
+                } else {
+                    btn.style.transform = `translate(0px, 0px)`;
+                }
+            });
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
+
     return (
         <div className="p-6 space-y-7 text-slate-100 max-w-[1600px] mx-auto min-h-screen">
             {/* HERO BANNER */}
-            <section className="relative overflow-hidden rounded-[28px] border border-slate-800 bg-[#090b12] px-7 py-7 shadow-xl">
+            <section className="relative overflow-hidden rounded-[28px] border border-slate-800 bg-[#090b12] px-7 py-7 shadow-xl glass-card">
                 <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
                 <div className="relative">
                     <div className="mb-3 flex items-center gap-2">
@@ -35,7 +84,7 @@ export default function Settings() {
             {/* SETTINGS CARDS GRID */}
             <div className="grid gap-5 md:grid-cols-2">
                 {/* API CONFIGURATION */}
-                <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-6 space-y-4 shadow-lg">
+                <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-6 space-y-4 shadow-lg glass-card">
                     <div className="flex items-center gap-3">
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                             <Server size={20} />
@@ -66,7 +115,7 @@ export default function Settings() {
                 </div>
 
                 {/* DATABASE STATUS */}
-                <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-6 space-y-4 shadow-lg">
+                <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-6 space-y-4 shadow-lg glass-card">
                     <div className="flex items-center gap-3">
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                             <Database size={20} />
@@ -89,7 +138,7 @@ export default function Settings() {
                 </div>
 
                 {/* INTERACTIVE TOGGLES */}
-                <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-6 space-y-4 shadow-lg md:col-span-2">
+                <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-6 space-y-4 shadow-lg md:col-span-2 glass-card">
                     <div className="flex items-center gap-3">
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                             <Sliders size={20} />
@@ -111,7 +160,7 @@ export default function Settings() {
                                     setAutoSync(!autoSync);
                                     toast.success(`Auto-sync ${!autoSync ? 'enabled' : 'disabled'}`);
                                 }}
-                                className="text-cyan-400 hover:text-cyan-300 cursor-pointer transition"
+                                className="text-cyan-400 hover:text-cyan-300 cursor-pointer transition magnetic-btn"
                             >
                                 {autoSync ? <ToggleRight size={32} className="text-cyan-400" /> : <ToggleLeft size={32} className="text-slate-600" />}
                             </button>
@@ -127,7 +176,7 @@ export default function Settings() {
                                     setHighContrast(!highContrast);
                                     toast.success(`High contrast mode ${!highContrast ? 'activated' : 'deactivated'}`);
                                 }}
-                                className="text-indigo-400 hover:text-indigo-300 cursor-pointer transition"
+                                className="text-indigo-400 hover:text-indigo-300 cursor-pointer transition magnetic-btn"
                             >
                                 {highContrast ? <ToggleRight size={32} className="text-indigo-400" /> : <ToggleLeft size={32} className="text-slate-600" />}
                             </button>

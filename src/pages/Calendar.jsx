@@ -36,13 +36,60 @@ function CalendarPage() {
     const adminEmails = ["abishek.katwal@pw.live", "abhishek20.katwal@gmail.com"];
     const isAdmin = adminEmails.includes(userEmail);
 
+    // --- CODEPEN MAGIC: Holographic Tilt, Mouse Spotlight & Magnetic Buttons ---
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            const cards = document.querySelectorAll(".glass-card");
+            cards.forEach((card) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                if (
+                    e.clientX >= rect.left &&
+                    e.clientX <= rect.right &&
+                    e.clientY >= rect.top &&
+                    e.clientY <= rect.bottom
+                ) {
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
+                } else {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)`;
+                }
+            });
+
+            const buttons = document.querySelectorAll(".magnetic-btn");
+            buttons.forEach((btn) => {
+                const rect = btn.getBoundingClientRect();
+                const btnX = rect.left + rect.width / 2;
+                const btnY = rect.top + rect.height / 2;
+                const distX = e.clientX - btnX;
+                const distY = e.clientY - btnY;
+                const distance = Math.sqrt(distX * distX + distY * distY);
+
+                if (distance < 70) {
+                    btn.style.transform = `translate(${distX * 0.3}px, ${distY * 0.3}px)`;
+                } else {
+                    btn.style.transform = `translate(0px, 0px)`;
+                }
+            });
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
+
     const fetchClasses = async () => {
         try {
             setLoading(true);
-            // Using secure 'api' instance to prevent 401 error
             const res = await api.get("/classes");
 
-            // Map backend class records to react-big-calendar event format
             const formattedEvents = res.data.map((item) => ({
                 id: item.id,
                 title: `${item.subject} (${item.batch_name || "Batch"})`,
@@ -88,7 +135,7 @@ function CalendarPage() {
 
                     {/* Only Admin can see Add Class button/dialog */}
                     {isAdmin && (
-                        <div className="shrink-0">
+                        <div className="shrink-0 magnetic-btn">
                             <AddClassDialog onClassAdded={fetchClasses} />
                         </div>
                     )}

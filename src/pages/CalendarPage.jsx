@@ -23,11 +23,11 @@ import {
 } from "lucide-react";
 
 /* =========================================================
-    PW TEST PLANNER (Dashboard Synced Engine)
+   PW TEST PLANNER (Dashboard Synced Engine)
 ========================================================= */
 
 /* =========================================================
-    CONSTANTS
+   CONSTANTS
 ========================================================= */
 
 const SUBJECTS = [
@@ -80,7 +80,7 @@ const MONTHS = [
 const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 /* =========================================================
-    HELPERS (Dashboard Synced)
+   HELPERS (Dashboard Synced)
 ========================================================= */
 
 function clean(value) {
@@ -595,7 +595,7 @@ function getTypeMeta(type) {
 }
 
 /* =========================================================
-    MAIN COMPONENT
+   MAIN COMPONENT
 ========================================================= */
 
 export default function CalendarPage() {
@@ -621,6 +621,55 @@ export default function CalendarPage() {
     const [search, setSearch] = useState("");
 
     const searchRef = useRef(null);
+
+    // --- CODEPEN MAGIC: Holographic Tilt, Mouse Spotlight & Magnetic Buttons ---
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            const cards = document.querySelectorAll(".glass-card, .calendar-card, .date-panel, .list-view, .summary-view, .stat-card, .sync-card, .filter-panel");
+            cards.forEach((card) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -3;
+                const rotateY = ((x - centerX) / centerX) * 3;
+
+                if (
+                    e.clientX >= rect.left &&
+                    e.clientX <= rect.right &&
+                    e.clientY >= rect.top &&
+                    e.clientY <= rect.bottom
+                ) {
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`;
+                } else {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)`;
+                }
+            });
+
+            const buttons = document.querySelectorAll(".magnetic-btn, .today-button, .nav-button, .view-button, .spin-button, .clear-filter");
+            buttons.forEach((btn) => {
+                const rect = btn.getBoundingClientRect();
+                const btnX = rect.left + rect.width / 2;
+                const btnY = rect.top + rect.height / 2;
+                const distX = e.clientX - btnX;
+                const distY = e.clientY - btnY;
+                const distance = Math.sqrt(distX * distX + distY * distY);
+
+                if (distance < 70) {
+                    btn.style.transform = `translate(${distX * 0.3}px, ${distY * 0.3}px)`;
+                } else {
+                    btn.style.transform = `translate(0px, 0px)`;
+                }
+            });
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
 
     async function loadPlanner(isRefresh = false) {
         try {
@@ -792,11 +841,11 @@ export default function CalendarPage() {
             <div className="vp-page">
                 <style>{styles}</style>
                 <div className="error-shell">
-                    <div className="error-card">
+                    <div className="error-card glass-card">
                         <div className="error-icon"><Activity size={28} /></div>
                         <h2>Planner connection failed</h2>
                         <p>{error}</p>
-                        <button className="vp-primary-button" onClick={() => loadPlanner()}>
+                        <button className="vp-primary-button magnetic-btn" onClick={() => loadPlanner()}>
                             <RefreshCw size={16} /> Retry
                         </button>
                     </div>
@@ -816,7 +865,7 @@ export default function CalendarPage() {
 
             <main className="planner-shell">
                 {/* TOP HEADER */}
-                <section className="hero">
+                <section className="hero glass-card">
                     <div className="hero-left">
                         <div className="eyebrow">
                             <span className="live-pulse" /> ACADEMIC OPERATIONS {isAdmin && "(Admin Mode)"}
@@ -828,7 +877,7 @@ export default function CalendarPage() {
                     </div>
 
                     <div className="hero-right">
-                        <div className="sync-card">
+                        <div className="sync-card glass-card">
                             <div className="sync-top">
                                 <span className="sync-status"><span /> LIVE</span>
                                 <span className="sync-source">Google Sheets</span>
@@ -839,7 +888,7 @@ export default function CalendarPage() {
                                 <span><Activity size={13} /> Synced just now</span>
                                 <button
                                     onClick={() => loadPlanner(true)}
-                                    className={refreshing ? "spin-button spinning" : "spin-button"}
+                                    className={refreshing ? "spin-button spinning magnetic-btn" : "spin-button magnetic-btn"}
                                     title="Refresh"
                                 >
                                     <RefreshCw size={15} />
@@ -868,7 +917,7 @@ export default function CalendarPage() {
                         <ViewButton active={view === "summary"} icon={<BarChart3 size={16} />} label="Summary" onClick={() => setView("summary")} />
                     </div>
 
-                    <div className="search-box">
+                    <div className="search-box glass-card">
                         <Search size={16} />
                         <input
                             ref={searchRef}
@@ -877,20 +926,20 @@ export default function CalendarPage() {
                             placeholder="Search tests, chapters, batches, JEE, NEET..."
                         />
                         {search && (
-                            <button onClick={() => setSearch("")}><X size={14} /></button>
+                            <button onClick={() => setSearch("")} className="magnetic-btn"><X size={14} /></button>
                         )}
                     </div>
                 </section>
 
                 {/* FILTER PANEL */}
-                <section className="filter-panel">
+                <section className="filter-panel glass-card">
                     <div className="filter-header">
                         <div>
                             <div className="section-kicker"><Filter size={13} /> FILTERS</div>
                             <div className="section-title">Refine your planner</div>
                         </div>
                         <button
-                            className="clear-filter"
+                            className="clear-filter magnetic-btn"
                             onClick={() => {
                                 setTypeFilter("ALL");
                                 setBatchFilter("All");
@@ -936,7 +985,7 @@ export default function CalendarPage() {
                                 {PHASES.map((phase) => (
                                     <button
                                         key={phase}
-                                        className={phaseFilter === phase ? "phase-pill active" : "phase-pill"}
+                                        className={phaseFilter === phase ? "phase-pill active magnetic-btn" : "phase-pill magnetic-btn"}
                                         onClick={() => setPhaseFilter(phase)}
                                     >
                                         {phase}
@@ -950,7 +999,7 @@ export default function CalendarPage() {
                                 {["All", ...SUBJECTS].map((subject) => (
                                     <button
                                         key={subject}
-                                        className={subjectFilter === subject ? "phase-pill active" : "phase-pill"}
+                                        className={subjectFilter === subject ? "phase-pill active magnetic-btn" : "phase-pill magnetic-btn"}
                                         onClick={() => setSubjectFilter(subject)}
                                     >
                                         {subject}
@@ -964,7 +1013,7 @@ export default function CalendarPage() {
                 {/* MAIN CONTENT */}
                 {view === "calendar" && (
                     <section className="calendar-layout">
-                        <div className="calendar-card">
+                        <div className="calendar-card glass-card">
                             <div className="calendar-header">
                                 <div className="month-info">
                                     <div className="month-mini">ACADEMIC CALENDAR</div>
@@ -978,9 +1027,9 @@ export default function CalendarPage() {
                                 </div>
 
                                 <div className="month-actions">
-                                    <button className="today-button" onClick={goToday}>Today</button>
-                                    <button className="nav-button" onClick={previousMonth}><ArrowLeft size={17} /></button>
-                                    <button className="nav-button" onClick={nextMonth}><ArrowRight size={17} /></button>
+                                    <button className="today-button magnetic-btn" onClick={goToday}>Today</button>
+                                    <button className="nav-button magnetic-btn" onClick={previousMonth}><ArrowLeft size={17} /></button>
+                                    <button className="nav-button magnetic-btn" onClick={nextMonth}><ArrowRight size={17} /></button>
                                 </div>
                             </div>
 
@@ -1085,7 +1134,7 @@ export default function CalendarPage() {
                             </div>
                         </div>
 
-                        <aside className="date-panel">
+                        <aside className="date-panel glass-card">
                             {!selectedDate ? (
                                 <div className="empty-panel">
                                     <div className="empty-orbit"><CalendarDays size={28} /></div>
@@ -1107,7 +1156,7 @@ export default function CalendarPage() {
                 )}
 
                 {view === "list" && (
-                    <section className="list-view">
+                    <section className="list-view glass-card">
                         <div className="list-header">
                             <div>
                                 <div className="section-kicker"><List size={13} /> PLANNER LIST</div>
@@ -1137,8 +1186,8 @@ export default function CalendarPage() {
                 )}
 
                 {view === "summary" && (
-                    <section className="summary-view">
-                        <div className="summary-hero">
+                    <section className="summary-view glass-card">
+                        <div className="summary-hero glass-card">
                             <div>
                                 <div className="section-kicker"><BarChart3 size={13} /> ACADEMIC OVERVIEW</div>
                                 <h2>Planner Intelligence</h2>
@@ -1199,12 +1248,12 @@ export default function CalendarPage() {
 }
 
 /* =========================================================
-    SUB-COMPONENTS
+   SUB-COMPONENTS
 ========================================================= */
 
 function StatCard({ icon, label, value, accent }) {
     return (
-        <div className="stat-card" style={{ "--accent": accent }}>
+        <div className="stat-card glass-card" style={{ "--accent": accent }}>
             <div className="stat-icon">{icon}</div>
             <div className="stat-content">
                 <span>{label}</span>
@@ -1217,7 +1266,7 @@ function StatCard({ icon, label, value, accent }) {
 
 function ViewButton({ active, icon, label, onClick }) {
     return (
-        <button className={active ? "view-button active" : "view-button"} onClick={onClick}>
+        <button className={active ? "view-button active magnetic-btn" : "view-button magnetic-btn"} onClick={onClick}>
             {icon} {label}
         </button>
     );
@@ -1234,7 +1283,7 @@ function FilterGroup({ label, children }) {
 
 function FilterPill({ active, color, label, count, onClick }) {
     return (
-        <button className={active ? "filter-pill active" : "filter-pill"} onClick={onClick} style={{ "--pill-color": color }}>
+        <button className={active ? "filter-pill active magnetic-btn" : "filter-pill magnetic-btn"} onClick={onClick} style={{ "--pill-color": color }}>
             <span className="pill-dot" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
             <span>{label}</span>
             <small>{count}</small>
@@ -1264,7 +1313,7 @@ function DatePanel({ date, tests, selectedTest, setSelectedTest, close }) {
                         <b>{month} {year}</b>
                     </div>
                 </div>
-                <button className="close-panel" onClick={close}><X size={17} /></button>
+                <button className="close-panel magnetic-btn" onClick={close}><X size={17} /></button>
             </div>
 
             <div className="date-summary">
@@ -1344,7 +1393,7 @@ function TestDetailModal({ test, onClose }) {
 
     return (
         <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-            <div className="test-modal">
+            <div className="test-modal glass-card">
                 <div className="modal-glow" style={{ background: meta.color }} />
                 <div className="modal-header">
                     <div>
@@ -1361,7 +1410,7 @@ function TestDetailModal({ test, onClose }) {
                             <span className="modal-tag">Phase {test.phase || "ALL"}</span>
                         </div>
                     </div>
-                    <button className="modal-close" onClick={onClose}><X size={19} /></button>
+                    <button className="modal-close magnetic-btn" onClick={onClose}><X size={19} /></button>
                 </div>
 
                 <div className="modal-date-banner">
@@ -1377,7 +1426,7 @@ function TestDetailModal({ test, onClose }) {
                     {getVisibleSubjects(test).map((subject) => {
                         const chapters = test.subjects[subject] || [];
                         return (
-                            <div key={subject} className="syllabus-card">
+                            <div key={subject} className="syllabus-card glass-card">
                                 <div className="syllabus-header">
                                     <div className={`subject-icon ${getSubjectClass(subject)}`}>
                                         {getSubjectInitial(subject)}
@@ -1407,7 +1456,7 @@ function TestDetailModal({ test, onClose }) {
 
                 <div className="modal-footer">
                     <div><Activity size={14} /> Live planner record</div>
-                    <button onClick={onClose}>Done</button>
+                    <button className="magnetic-btn" onClick={onClose}>Done</button>
                 </div>
             </div>
         </div>
@@ -1418,7 +1467,7 @@ function TestListRow({ test, onClick }) {
     const meta = getTypeMeta(test.type);
 
     return (
-        <button className="list-row" onClick={onClick} style={{ "--row-color": meta.color }}>
+        <button className="list-row glass-card" onClick={onClick} style={{ "--row-color": meta.color }}>
             <div className="list-date">
                 <strong>{parseDateKey(test.date)?.getDate()}</strong>
                 <span>{parseDateKey(test.date)?.toLocaleDateString("en-IN", { month: "short" })}</span>
@@ -1449,7 +1498,7 @@ function TestListRow({ test, onClick }) {
 
 function SummaryBlock({ title, icon, children }) {
     return (
-        <div className="summary-block">
+        <div className="summary-block glass-card">
             <div className="summary-block-header">
                 <div className="summary-icon">{icon}</div>
                 <strong>{title}</strong>
@@ -1488,7 +1537,7 @@ function EmptyState() {
 }
 
 /* =========================================================
-    CSS STYLING (Unchanged & Polished)
+   CSS STYLING (Unchanged & Polished)
 ========================================================= */
 
 const styles = `
@@ -1506,7 +1555,7 @@ const styles = `
 .ambient-three { width: 280px; height: 280px; background: #0284c7; bottom: -120px; left: 35%; animation-delay: -9s; }
 .noise { position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: .035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E"); }
 .planner-shell { position: relative; z-index: 2; width: min(1680px, calc(100% - 44px)); margin: 0 auto; padding: 34px 0 60px; }
-.hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; margin-bottom: 24px; }
+.hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; margin-bottom: 24px; padding: 24px; border-radius: 28px; }
 .hero-left { max-width: 900px; }
 .eyebrow, .section-kicker { display: flex; align-items: center; gap: 8px; color: #8992b8; font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
 .live-pulse { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 5px rgba(34,197,94,.08), 0 0 14px #22c55e; animation: pulse 1.8s infinite; }

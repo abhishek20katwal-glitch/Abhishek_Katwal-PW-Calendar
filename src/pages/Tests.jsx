@@ -1,5 +1,5 @@
 import api from "@/api/axios";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { ClipboardList, Search, RefreshCw, X, AlertCircle, BookOpen, Sparkles, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -64,13 +64,61 @@ export default function Tests() {
     const adminEmails = ["abishek.katwal@pw.live", "abhishek20.katwal@gmail.com"];
     const isAdmin = adminEmails.includes(userEmail);
 
+    // --- CODEPEN MAGIC: Holographic Tilt, Mouse Spotlight & Magnetic Buttons ---
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            const cards = document.querySelectorAll(".glass-card");
+            cards.forEach((card) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                if (
+                    e.clientX >= rect.left &&
+                    e.clientX <= rect.right &&
+                    e.clientY >= rect.top &&
+                    e.clientY <= rect.bottom
+                ) {
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
+                } else {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)`;
+                }
+            });
+
+            const buttons = document.querySelectorAll(".magnetic-btn");
+            buttons.forEach((btn) => {
+                const rect = btn.getBoundingClientRect();
+                const btnX = rect.left + rect.width / 2;
+                const btnY = rect.top + rect.height / 2;
+                const distX = e.clientX - btnX;
+                const distY = e.clientY - btnY;
+                const distance = Math.sqrt(distX * distX + distY * distY);
+
+                if (distance < 70) {
+                    btn.style.transform = `translate(${distX * 0.3}px, ${distY * 0.3}px)`;
+                } else {
+                    btn.style.transform = `translate(0px, 0px)`;
+                }
+            });
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
+
     const loadTests = async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
             setErrorMsg(null);
 
-            // Using secure 'api' instance instead of raw fetch
             const res = await api.get("/schedule");
             const data = res.data;
             const rows = flattenPayload(data);
@@ -83,7 +131,6 @@ export default function Tests() {
                 const batchClass = row.batch || "11th";
                 const exam = lower(div + " " + batchClass).includes("neet") ? "NEET" : "JEE";
 
-                // Extract all available subject syllabi using robust key mapping
                 const syllabus = {};
                 Object.entries(SUBJECT_MAPPING).forEach(([subjectName, keys]) => {
                     for (const key of keys) {
@@ -142,7 +189,7 @@ export default function Tests() {
     return (
         <div className="p-6 space-y-7 text-slate-100 max-w-[1600px] mx-auto min-h-screen">
             {/* HERO BANNER */}
-            <section className="relative overflow-hidden rounded-[28px] border border-slate-800 bg-[#090b12] px-7 py-7 shadow-xl">
+            <section className="relative overflow-hidden rounded-[28px] border border-slate-800 bg-[#090b12] px-7 py-7 shadow-xl glass-card">
                 <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />
                 <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
                     <div>
@@ -157,11 +204,10 @@ export default function Tests() {
                         </p>
                     </div>
 
-                    {/* Only Admin can see Sync Tests button if required, or keep it accessible */}
                     <Button
                         onClick={() => loadTests(true)}
                         disabled={refreshing}
-                        className="rounded-xl bg-cyan-500 text-slate-950 hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 cursor-pointer font-bold"
+                        className="rounded-xl bg-cyan-500 text-slate-950 hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 cursor-pointer font-bold magnetic-btn"
                     >
                         <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
                         {refreshing ? "Syncing..." : "Sync Tests"}
@@ -170,14 +216,14 @@ export default function Tests() {
             </section>
 
             {errorMsg && (
-                <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-2xl flex items-center gap-3 text-rose-400 text-xs">
+                <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-2xl flex items-center gap-3 text-rose-400 text-xs glass-card">
                     <AlertCircle size={18} />
                     <span>Connection Warning: {errorMsg}</span>
                 </div>
             )}
 
             {/* SEARCH BAR */}
-            <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-5 shadow-lg flex items-center gap-3">
+            <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-5 shadow-lg flex items-center gap-3 glass-card">
                 <Search size={18} className="text-cyan-400" />
                 <input
                     value={search}
@@ -186,7 +232,7 @@ export default function Tests() {
                     className="bg-transparent border-none outline-none w-full text-sm text-slate-200 placeholder:text-slate-500"
                 />
                 {search && (
-                    <button onClick={() => setSearch("")} className="text-xs text-slate-400 hover:text-white cursor-pointer">Clear</button>
+                    <button onClick={() => setSearch("")} className="text-xs text-slate-400 hover:text-white cursor-pointer magnetic-btn">Clear</button>
                 )}
             </div>
 
@@ -196,7 +242,7 @@ export default function Tests() {
                     <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-500 border-t-transparent" />
                 </div>
             ) : filteredTests.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-800 bg-[#090b12]/50 p-12 text-center">
+                <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-800 bg-[#090b12]/50 p-12 text-center glass-card">
                     <ClipboardList size={32} className="text-slate-600 mb-3" />
                     <h3 className="text-base font-bold text-slate-200">No tests found</h3>
                     <p className="mt-1 text-xs text-slate-500">Try searching with a different keyword or date format.</p>
@@ -207,7 +253,7 @@ export default function Tests() {
                         <div
                             key={t.id}
                             onClick={() => setSelectedTest(t)}
-                            className="group bg-[#0d111a] border border-slate-800/80 p-4 rounded-2xl flex justify-between items-center hover:border-cyan-500/40 hover:bg-white/[0.02] cursor-pointer transition shadow-md"
+                            className="group bg-[#0d111a] border border-slate-800/80 p-4 rounded-2xl flex justify-between items-center hover:border-cyan-500/40 hover:bg-white/[0.02] cursor-pointer transition shadow-md glass-card"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-2xl bg-slate-900 border border-slate-800 text-cyan-400 font-bold">
@@ -242,14 +288,14 @@ export default function Tests() {
 
             {/* MODAL WITH ALL SUBJECTS SYLLABUS */}
             {selectedTest && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md" onClick={() => setSelectedTest(null)}>
-                    <div className="bg-[#090b12] border border-slate-800 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-7 rounded-3xl space-y-6 shadow-2xl text-white" onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setSelectedTest(null)}>
+                    <div className="bg-[#090b12] border border-slate-800 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-7 rounded-3xl space-y-6 shadow-2xl text-white glass-card" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center border-b border-slate-800 pb-4">
                             <div>
                                 <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Assessment & Syllabus Details</span>
                                 <h2 className="text-xl font-bold mt-0.5">{selectedTest.name} #{selectedTest.no} ({selectedTest.pattern})</h2>
                             </div>
-                            <button onClick={() => setSelectedTest(null)} className="text-slate-400 hover:text-white cursor-pointer p-1.5 rounded-xl bg-slate-900 border border-slate-800"><X size={18} /></button>
+                            <button onClick={() => setSelectedTest(null)} className="text-slate-400 hover:text-white cursor-pointer p-1.5 rounded-xl bg-slate-900 border border-slate-800 magnetic-btn"><X size={18} /></button>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
@@ -275,7 +321,7 @@ export default function Tests() {
                             {Object.keys(selectedTest.syllabus).length > 0 ? (
                                 <div className="grid gap-3">
                                     {Object.entries(selectedTest.syllabus).map(([subj, text]) => (
-                                        <div key={subj} className="rounded-2xl border border-slate-800/80 bg-[#0d111a] p-4 space-y-1.5">
+                                        <div key={subj} className="rounded-2xl border border-slate-800/80 bg-[#0d111a] p-4 space-y-1.5 glass-card">
                                             <span className="text-[11px] font-extrabold text-cyan-400 uppercase tracking-wide">{subj}</span>
                                             <p className="text-xs text-slate-300 whitespace-pre-line leading-relaxed">{text}</p>
                                         </div>
@@ -289,7 +335,7 @@ export default function Tests() {
                         </div>
 
                         <div className="flex justify-end pt-3 border-t border-slate-800">
-                            <button onClick={() => setSelectedTest(null)} className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-6 py-2.5 rounded-xl text-xs font-bold cursor-pointer shadow-lg shadow-cyan-500/20">Close Details</button>
+                            <button onClick={() => setSelectedTest(null)} className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-6 py-2.5 rounded-xl text-xs font-bold cursor-pointer shadow-lg shadow-cyan-500/20 magnetic-btn">Close Details</button>
                         </div>
                     </div>
                 </div>

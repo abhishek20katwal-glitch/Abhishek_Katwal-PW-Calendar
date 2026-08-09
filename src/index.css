@@ -228,3 +228,48 @@ body {
     @apply font-sans;
   }
 }
+
+/* Hide default cursor globally to showcase custom codepen cursor */
+body,
+button,
+a,
+input,
+select,
+textarea {
+  cursor: none !important;
+}
+
+/* --- CODEPEN MAGNETIC & 3D TILT EFFECTS --- */
+.magnetic-btn {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tilt-card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s ease-out, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Dynamic Spotlight Ray inside Cards */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(800px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(99, 102, 241, 0.12), transparent 40%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass-card:hover::before {
+  opacity: 1;
+}

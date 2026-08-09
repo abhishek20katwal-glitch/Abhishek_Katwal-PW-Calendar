@@ -827,9 +827,10 @@ function Dashboard() {
 
     const searchRef = useRef(null);
 
-    // Interactive Spotlight Mouse Tracker for CodePen effect
+    // --- CODEPEN MAGIC: Holographic Tilt, Mouse Spotlight & Magnetic Buttons ---
     useEffect(() => {
         const handleMouseMove = (e) => {
+            // Spotlight & 3D Tilt for Glass Cards
             const cards = document.querySelectorAll(".glass-card");
             cards.forEach((card) => {
                 const rect = card.getBoundingClientRect();
@@ -837,8 +838,42 @@ function Dashboard() {
                 const y = e.clientY - rect.top;
                 card.style.setProperty("--mouse-x", `${x}px`);
                 card.style.setProperty("--mouse-y", `${y}px`);
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                if (
+                    e.clientX >= rect.left &&
+                    e.clientX <= rect.right &&
+                    e.clientY >= rect.top &&
+                    e.clientY <= rect.bottom
+                ) {
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
+                } else {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)`;
+                }
+            });
+
+            // Magnetic Pull Effect for Buttons
+            const buttons = document.querySelectorAll(".magnetic-btn");
+            buttons.forEach((btn) => {
+                const rect = btn.getBoundingClientRect();
+                const btnX = rect.left + rect.width / 2;
+                const btnY = rect.top + rect.height / 2;
+                const distX = e.clientX - btnX;
+                const distY = e.clientY - btnY;
+                const distance = Math.sqrt(distX * distX + distY * distY);
+
+                if (distance < 70) {
+                    btn.style.transform = `translate(${distX * 0.3}px, ${distY * 0.3}px)`;
+                } else {
+                    btn.style.transform = `translate(0px, 0px)`;
+                }
             });
         };
+
         window.addEventListener("mousemove", handleMouseMove);
         return () => window.removeEventListener("mousemove", handleMouseMove);
     }, []);
@@ -853,6 +888,7 @@ function Dashboard() {
 
         const payload = response.data;
         const rows = flattenPayload(payload);
+
         const normalized = rows
             .map((row, index) =>
                 normalizeTest(row, index)
@@ -1106,7 +1142,7 @@ function Dashboard() {
 
                     <Button
                         onClick={handleRefresh}
-                        className="mt-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl"
+                        className="mt-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl magnetic-btn"
                     >
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Try Again
@@ -1151,7 +1187,7 @@ function Dashboard() {
                     <Button
                         onClick={handleRefresh}
                         disabled={refreshing}
-                        className="shrink-0 rounded-xl bg-white/[0.08] border border-white/10 text-white hover:bg-white/[0.15] backdrop-blur-md transition-all cursor-pointer"
+                        className="shrink-0 rounded-xl bg-white/[0.08] border border-white/10 text-white hover:bg-white/[0.15] backdrop-blur-md transition-all magnetic-btn cursor-pointer"
                     >
                         <RefreshCw
                             className={
@@ -1262,7 +1298,7 @@ function Dashboard() {
                             <button
                                 type="button"
                                 onClick={() => setSearch("")}
-                                className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-white cursor-pointer"
+                                className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-white cursor-pointer magnetic-btn"
                                 aria-label="Clear search"
                             >
                                 <X size={15} />
@@ -1296,7 +1332,7 @@ function Dashboard() {
             {/* SEARCH RESULT SUMMARY */}
 
             {search && (
-                <section className="rounded-3xl border border-indigo-500/20 bg-indigo-500/5 p-5 backdrop-blur-xl">
+                <section className="rounded-3xl border border-indigo-500/20 bg-indigo-500/5 p-5 backdrop-blur-xl glass-card">
 
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
@@ -1318,7 +1354,7 @@ function Dashboard() {
                         <Button
                             variant="outline"
                             onClick={() => setSearch("")}
-                            className="rounded-xl bg-white/5 border-white/10 text-white hover:bg-white/10 cursor-pointer"
+                            className="rounded-xl bg-white/5 border-white/10 text-white hover:bg-white/10 cursor-pointer magnetic-btn"
                         >
                             <X className="mr-2 h-4 w-4" />
                             Clear Search
@@ -1381,7 +1417,7 @@ function Dashboard() {
                         )}
                     </div>
 
-                    <div className="rounded-3xl border border-indigo-500/30 bg-[#060810] p-6 text-white shadow-xl relative overflow-hidden">
+                    <div className="rounded-3xl border border-indigo-500/30 bg-[#060810] p-6 text-white shadow-xl relative overflow-hidden glass-card">
                         <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
 
                         <div className="flex items-center gap-2">
@@ -1684,13 +1720,7 @@ function Dashboard() {
                                         )
                                     );
 
-                                    const height =
-                                        max > 0
-                                            ? Math.max(
-                                                12,
-                                                (count / max) * 100
-                                            )
-                                            : 12;
+                                    const height = max > 0 ? Math.max(35, (count / max) * 100) : 35;
 
                                     return (
                                         <div
@@ -1752,7 +1782,7 @@ function MetricCard({
     iconClass,
 }) {
     return (
-        <div className="rounded-3xl glass-card glass-card-hover p-5">
+        <div className="rounded-3xl glass-card p-5">
 
             <div className="flex items-start justify-between">
 
@@ -1936,7 +1966,7 @@ function ExamCard({
             : 0;
 
     return (
-        <div className="rounded-3xl glass-card glass-card-hover p-6">
+        <div className="rounded-3xl glass-card p-6">
 
             <div className="flex items-start justify-between">
 
