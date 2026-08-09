@@ -827,8 +827,23 @@ function Dashboard() {
 
     const searchRef = useRef(null);
 
+    // Interactive Spotlight Mouse Tracker for CodePen effect
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            const cards = document.querySelectorAll(".glass-card");
+            cards.forEach((card) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+            });
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
+
     const fetchCalendarData = async () => {
-        // Using secure 'api' instance instead of raw fetch
         const response = await api.get("/schedule", {
             headers: {
                 Accept: "application/json",
@@ -837,9 +852,7 @@ function Dashboard() {
         });
 
         const payload = response.data;
-
         const rows = flattenPayload(payload);
-
         const normalized = rows
             .map((row, index) =>
                 normalizeTest(row, index)
@@ -854,17 +867,13 @@ function Dashboard() {
             try {
                 setLoading(true);
                 setError("");
-
                 await fetchCalendarData();
             } catch (err) {
                 console.error(err);
-
                 const message =
                     err?.message ||
                     "Failed to load calendar data";
-
                 setError(message);
-
                 toast.error(message);
             } finally {
                 setLoading(false);
@@ -892,15 +901,12 @@ function Dashboard() {
         try {
             setRefreshing(true);
             setError("");
-
             await fetchCalendarData();
-
             toast.success(
                 "Calendar data synchronized successfully"
             );
         } catch (err) {
             console.error(err);
-
             toast.error(
                 err?.message ||
                 "Failed to refresh calendar"
@@ -1142,7 +1148,6 @@ function Dashboard() {
                         </p>
                     </div>
 
-                    {/* Only Admin can see Refresh Planner button if desired, or keep it visible since it's a safe sync action. Let's wrap it or keep it accessible. Let's make Refresh conditional or accessible to all view-only users too since fetching is safe. But if it's admin-only action, we can check isAdmin. Let's allow view users to refresh or hide it if needed. Let's keep it visible or conditional. */}
                     <Button
                         onClick={handleRefresh}
                         disabled={refreshing}
