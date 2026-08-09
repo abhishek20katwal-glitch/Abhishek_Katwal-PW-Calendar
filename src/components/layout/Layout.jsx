@@ -1,25 +1,47 @@
-import Sidebar from "./Sidebar";
-import Header from "./Header";
+import { useState } from "react";
+import Sidebar from "./Sidebar"; // Agar Sidebar kisi aur folder mein hai toh path check kar lena
+import { Menu } from "lucide-react";
 
-function Layout({ children }) {
+export default function Layout({ children }) {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
-        <div className="flex min-h-screen overflow-x-hidden bg-[#090b12]">
-            <Sidebar />
+        <div className="flex min-h-screen bg-[#070912] text-white">
 
-            <div className="min-w-0 flex-1 overflow-x-hidden">
-                <Header />
-
-                <main className="p-6">
-
-                    {children}
-
-                </main>
-
+            {/* ================================================= */}
+            {/* MOBILE TOP BAR (Yeh sirf mobile/tablet par dikhega) */}
+            {/* ================================================= */}
+            <div className="fixed top-0 left-0 right-0 z-30 flex h-16 items-center justify-between border-b border-white/[0.06] bg-[#090b12] px-4 lg:hidden">
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-2 text-slate-300 hover:text-white"
+                        aria-label="Open Menu"
+                    >
+                        <Menu size={20} />
+                    </button>
+                    <span className="text-sm font-bold tracking-tight text-white">
+                        PW Calendar Pro
+                    </span>
+                </div>
             </div>
 
+            {/* ================================================= */}
+            {/* SIDEBAR COMPONENT */}
+            {/* ================================================= */}
+            <Sidebar
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
+            />
+
+            {/* ================================================= */}
+            {/* MAIN CONTENT AREA */}
+            {/* ================================================= */}
+            <main className="flex-1 flex flex-col min-w-0 pt-16 lg:pt-0">
+                <div className="flex-1 p-4 lg:p-8 overflow-y-auto">
+                    {children}
+                </div>
+            </main>
         </div>
     );
 }
-
-export default Layout;
