@@ -1720,7 +1720,7 @@ function Dashboard() {
                                         )
                                     );
 
-                                    const height = max > 0 ? Math.max(35, (count / max) * 100) : 35;
+                                    className = "w-full max-w-[58px] rounded-t-xl bg-gradient-to-t from-indigo-600 to-cyan-400 shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all"
 
                                     return (
                                         <div
