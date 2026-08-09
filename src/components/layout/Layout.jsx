@@ -3,18 +3,54 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Menu } from "lucide-react";
 
+// Web Audio API Sound Generator (No extra files required)
+const playSound = (type = 'click') => {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'click') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+    } catch (e) {
+        // Fallback if browser blocks autoplay
+    }
+};
+
 export default function Layout({ children }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
     const [isHovered, setIsHovered] = useState(false);
 
-    // Custom smooth cursor position tracker
+    // Custom smooth cursor position tracker & global sound listener
     useEffect(() => {
         const handleMouseMove = (e) => {
             setCursorPos({ x: e.clientX, y: e.clientY });
         };
+
+        const handleGlobalClick = (e) => {
+            if (e.target.closest('button') || e.target.closest('a') || e.target.closest('[role="button"]')) {
+                playSound('click');
+            }
+        };
+
         window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
+        window.addEventListener("click", handleGlobalClick);
+
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("click", handleGlobalClick);
+        };
     }, []);
 
     return (
