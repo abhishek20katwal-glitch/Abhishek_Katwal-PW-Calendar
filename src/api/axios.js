@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+    baseURL: "https://abhishek-katwal-pw-calendar.onrender.com",
 });
 
 // Request Interceptor: Har request mein token automatically attach karne ke liye
@@ -24,10 +24,8 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
-        // Agar backend 401 error deta hai, toh token galat ya expired hai
         if (error.response && error.response.status === 401) {
             localStorage.removeItem("admin_token");
-            // User ko login page par bhej dein
             window.location.href = "/login";
         }
         return Promise.reject(error);

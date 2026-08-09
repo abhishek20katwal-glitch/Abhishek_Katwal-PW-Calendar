@@ -56,7 +56,7 @@ function Header() {
     const checkHealth = async () => {
         try {
             const start = performance.now();
-            const res = await fetch("http://localhost:8000/schedule");
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8000"}/schedule`);
             const end = performance.now();
             if (res.ok) {
                 setBackendStatus("Online & Synchronized");
