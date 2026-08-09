@@ -24,7 +24,7 @@ app = FastAPI()
 
 
 # ============================================================
-# CORS
+# CORS (Updated to allow live Cloudflare frontend)
 # ============================================================
 
 app.add_middleware(
@@ -32,6 +32,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:5174",
+        "https://abhishek-katwal-pw-calendar.pages.dev",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -45,23 +46,19 @@ app.add_middleware(
 
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "pw_calendar_super_secure_admin_key_2026")
 
-# 1. Yeh list un sabhi logon ke liye hai jinko aap LOGIN (View-Only) access dena chahte hain
 ALLOWED_LOGIN_EMAILS = [
     "abishek.katwal@pw.live",
     "abhishek20.katwal@gmail.com",
-    # Jab bhi kisi naye bande ko view-only access dena ho, uska email yahan add kar dena:
-     "abhishm7052@gmail.com"
+    "abhishm7052@gmail.com"
 ]
 
 class LoginVerifyRequest(BaseModel):
     email: str
 
-# Google Email Verification Endpoint (Frontend yahan request bhejega)
 @app.post("/api/verify-admin")
 def verify_google_login(data: LoginVerifyRequest):
     user_email = data.email.strip().lower()
     
-    # Check karo ki email allowed login list mein hai ya nahi
     if user_email not in [e.lower() for e in ALLOWED_LOGIN_EMAILS]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
@@ -71,7 +68,6 @@ def verify_google_login(data: LoginVerifyRequest):
     return {"message": "Access granted", "status": "success", "email": user_email}
 
 
-# 2. Token dependency for protected mutations (POST, PUT, DELETE)
 def verify_admin(x_admin_token: str = Header(None)):
     if x_admin_token != ADMIN_SECRET_KEY:
         raise HTTPException(
@@ -93,7 +89,7 @@ APPS_SCRIPT_URL = (
 
 
 # ============================================================
-# BATCH MODEL
+# MODELS
 # ============================================================
 
 class BatchCreate(BaseModel):
@@ -103,19 +99,11 @@ class BatchCreate(BaseModel):
     academic_year: str
 
 
-# ============================================================
-# FACULTY MODEL
-# ============================================================
-
 class FacultyCreate(BaseModel):
     name: str
     subject: str
     email: str | None = None
 
-
-# ============================================================
-# CLASS SCHEDULE MODEL
-# ============================================================
 
 class ClassScheduleCreate(BaseModel):
     batch_id: int
@@ -126,19 +114,13 @@ class ClassScheduleCreate(BaseModel):
 
 
 # ============================================================
-# HOME
+# HOME & APPS SCRIPT APIs
 # ============================================================
 
 @app.get("/")
 def home():
-    return {
-        "message": "PW API Running"
-    }
+    return {"message": "PW API Running"}
 
-
-# ============================================================
-# APPS SCRIPT / GOOGLE SHEET API
-# ============================================================
 
 @app.get("/schedule")
 def get_schedule():
@@ -148,10 +130,8 @@ def get_schedule():
             timeout=30,
             allow_redirects=True,
         )
-
         response.raise_for_status()
-        data = response.json()
-        return data
+        return response.json()
 
     except requests.exceptions.RequestException as error:
         return {
@@ -166,10 +146,6 @@ def get_schedule():
             "response": response.text[:1000],
         }
 
-
-# ============================================================
-# TEST PLANNER API
-# ============================================================
 
 @app.get("/planner")
 def get_planner():
@@ -212,10 +188,7 @@ def create_batch(batch: BatchCreate, admin: bool = Depends(verify_admin)):
         db.add(new_batch)
         db.commit()
         db.refresh(new_batch)
-        return {
-            "message": "Batch created successfully",
-            "id": new_batch.id,
-        }
+        return {"message": "Batch created successfully", "id": new_batch.id}
     finally:
         db.close()
 
@@ -235,11 +208,7 @@ def update_batch(batch_id: int, batch: BatchCreate, admin: bool = Depends(verify
 
         db.commit()
         db.refresh(existing_batch)
-
-        return {
-            "message": "Batch updated successfully",
-            "id": existing_batch.id,
-        }
+        return {"message": "Batch updated successfully", "id": existing_batch.id}
     finally:
         db.close()
 
@@ -254,10 +223,7 @@ def delete_batch(batch_id: int, admin: bool = Depends(verify_admin)):
 
         db.delete(batch)
         db.commit()
-
-        return {
-            "message": "Batch deleted successfully"
-        }
+        return {"message": "Batch deleted successfully"}
     finally:
         db.close()
 
@@ -296,10 +262,7 @@ def create_faculty(faculty: FacultyCreate, admin: bool = Depends(verify_admin)):
         db.add(new_faculty)
         db.commit()
         db.refresh(new_faculty)
-        return {
-            "message": "Faculty created successfully",
-            "id": new_faculty.id,
-        }
+        return {"message": "Faculty created successfully", "id": new_faculty.id}
     finally:
         db.close()
 
@@ -318,11 +281,7 @@ def update_faculty(faculty_id: int, faculty: FacultyCreate, admin: bool = Depend
 
         db.commit()
         db.refresh(existing_faculty)
-
-        return {
-            "message": "Faculty updated successfully",
-            "id": existing_faculty.id,
-        }
+        return {"message": "Faculty updated successfully", "id": existing_faculty.id}
     finally:
         db.close()
 
@@ -337,10 +296,7 @@ def delete_faculty(faculty_id: int, admin: bool = Depends(verify_admin)):
 
         db.delete(faculty)
         db.commit()
-
-        return {
-            "message": "Faculty deleted successfully"
-        }
+        return {"message": "Faculty deleted successfully"}
     finally:
         db.close()
 
@@ -401,11 +357,7 @@ def create_class(schedule: ClassScheduleCreate, admin: bool = Depends(verify_adm
         db.add(new_class)
         db.commit()
         db.refresh(new_class)
-
-        return {
-            "message": "Class schedule created successfully",
-            "id": new_class.id,
-        }
+        return {"message": "Class schedule created successfully", "id": new_class.id}
     finally:
         db.close()
 
@@ -435,11 +387,7 @@ def update_class(class_id: int, schedule: ClassScheduleCreate, admin: bool = Dep
 
         db.commit()
         db.refresh(existing_class)
-
-        return {
-            "message": "Class schedule updated successfully",
-            "id": existing_class.id,
-        }
+        return {"message": "Class schedule updated successfully", "id": existing_class.id}
     finally:
         db.close()
 
@@ -454,9 +402,6 @@ def delete_class(class_id: int, admin: bool = Depends(verify_admin)):
 
         db.delete(class_schedule)
         db.commit()
-
-        return {
-            "message": "Class schedule deleted successfully"
-        }
+        return {"message": "Class schedule deleted successfully"}
     finally:
         db.close()
