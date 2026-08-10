@@ -830,7 +830,6 @@ function Dashboard() {
     // --- CODEPEN MAGIC: Holographic Tilt, Mouse Spotlight & Magnetic Buttons ---
     useEffect(() => {
         const handleMouseMove = (e) => {
-            // Spotlight & 3D Tilt for Glass Cards
             const cards = document.querySelectorAll(".glass-card");
             cards.forEach((card) => {
                 const rect = card.getBoundingClientRect();
@@ -856,7 +855,6 @@ function Dashboard() {
                 }
             });
 
-            // Magnetic Pull Effect for Buttons
             const buttons = document.querySelectorAll(".magnetic-btn");
             buttons.forEach((btn) => {
                 const rect = btn.getBoundingClientRect();
@@ -1720,7 +1718,7 @@ function Dashboard() {
                                         )
                                     );
 
-                                    className = "w-full max-w-[58px] rounded-t-xl bg-gradient-to-t from-indigo-600 to-cyan-400 shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all"
+                                    const height = max > 0 ? Math.max(25, (count / max) * 100) : 25;
 
                                     return (
                                         <div
@@ -1732,7 +1730,7 @@ function Dashboard() {
                                             </span>
 
                                             <div
-                                                className="w-full max-w-[58px] rounded-t-xl bg-gradient-to-t from-indigo-600 to-violet-500 shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all"
+                                                className="w-full max-w-[58px] rounded-t-xl bg-gradient-to-t from-indigo-600 to-cyan-400 shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all"
                                                 style={{
                                                     height: `${height}%`,
                                                 }}
