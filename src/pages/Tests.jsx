@@ -1,6 +1,6 @@
 import api from "@/api/axios";
 import { useEffect, useState, useMemo, useRef } from "react";
-import { ClipboardList, Search, RefreshCw, X, AlertCircle, BookOpen, Sparkles, Eye } from "lucide-react";
+import { ClipboardList, Search, RefreshCw, X, AlertCircle, BookOpen, Sparkles, Eye, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -187,7 +187,18 @@ export default function Tests() {
     }, [tests, search]);
 
     return (
-        <div className="p-6 space-y-7 text-slate-100 max-w-[1600px] mx-auto min-h-screen">
+        <div className="p-6 space-y-7 text-slate-100 max-w-[1600px] mx-auto min-h-screen relative">
+
+            {/* --- CYBER SCANNER ORB HEADER --- */}
+            <div className="relative w-full overflow-hidden h-9 pointer-events-none mb-[-8px] flex items-center">
+                <div className="absolute left-0 flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)] animate-tech-walk z-20 backdrop-blur-md">
+                    <Cpu size={14} className="animate-spin text-indigo-400" />
+                    <span className="text-[9px] font-extrabold uppercase tracking-widest text-indigo-200">
+                        ⚡ SCHEDULER ENGINE // ACTIVE PROTOCOL
+                    </span>
+                </div>
+            </div>
+
             {/* HERO BANNER */}
             <section className="relative overflow-hidden rounded-[28px] border border-slate-800 bg-[#090b12] px-7 py-7 shadow-xl glass-card">
                 <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />

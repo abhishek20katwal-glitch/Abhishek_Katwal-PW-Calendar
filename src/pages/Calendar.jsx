@@ -8,7 +8,7 @@ import {
     getDay,
 } from "date-fns";
 import { enUS } from "date-fns/locale";
-import { CalendarDays, Sparkles } from "lucide-react";
+import { CalendarDays, Sparkles, Cpu } from "lucide-react";
 import { toast } from "sonner";
 
 import AddClassDialog from "@/components/calendar/AddClassDialog";
@@ -111,7 +111,18 @@ function CalendarPage() {
     }, []);
 
     return (
-        <div className="space-y-7 p-2 min-h-screen">
+        <div className="space-y-7 p-2 min-h-screen relative">
+
+            {/* --- CYBER SCANNER ORB HEADER --- */}
+            <div className="relative w-full overflow-hidden h-9 pointer-events-none mb-[-8px] flex items-center">
+                <div className="absolute left-0 flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)] animate-tech-walk z-20 backdrop-blur-md">
+                    <Cpu size={14} className="animate-spin text-indigo-400" />
+                    <span className="text-[9px] font-extrabold uppercase tracking-widest text-indigo-200">
+                        ⚡ SCHEDULER ENGINE // ACTIVE PROTOCOL
+                    </span>
+                </div>
+            </div>
+
             {/* HERO BANNER */}
             <section className="relative overflow-hidden rounded-[28px] glass-card px-7 py-7 text-white shadow-2xl">
                 <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl" />

@@ -20,6 +20,7 @@ import {
     Target,
     X,
     Zap,
+    Cpu,
 } from "lucide-react";
 
 /* =========================================================
@@ -864,6 +865,16 @@ export default function CalendarPage() {
             <div className="noise" />
 
             <main className="planner-shell">
+                {/* --- CYBER SCANNER ORB HEADER --- */}
+                <div className="relative w-full overflow-hidden h-9 pointer-events-none mb-[-8px] flex items-center">
+                    <div className="absolute left-0 flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)] animate-tech-walk z-20 backdrop-blur-md">
+                        <Cpu size={14} className="animate-spin text-indigo-400" />
+                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-indigo-200">
+                            ⚡ SCHEDULER ENGINE // ACTIVE PROTOCOL
+                        </span>
+                    </div>
+                </div>
+
                 {/* TOP HEADER */}
                 <section className="hero glass-card">
                     <div className="hero-left">

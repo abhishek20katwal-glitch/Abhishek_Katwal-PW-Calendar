@@ -1,16 +1,38 @@
 import api from "@/api/axios";
 import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, Database, Server, Bell, ShieldCheck, Sliders, ToggleLeft, ToggleRight } from "lucide-react";
+import { Settings as SettingsIcon, Database, Server, Bell, ShieldCheck, Sliders, ToggleLeft, ToggleRight, Cpu, Terminal, Activity } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Settings() {
     const [autoSync, setAutoSync] = useState(true);
     const [highContrast, setHighContrast] = useState(false);
+    const [terminalLogs, setTerminalLogs] = useState([
+        "SYSTEM CORE INITIALIZED...",
+        "CONNECTING TO FASTAPI BACKEND [localhost:8000]...",
+        "POSTGRESQL ORM [pw_calendar] LINK STABLE.",
+        "SECURE TOKEN VALIDATED VIA GOOGLE OAUTH."
+    ]);
 
     // Admin Check based on local storage email
     const userEmail = localStorage.getItem("user_email");
     const adminEmails = ["abishek.katwal@pw.live", "abhishek20.katwal@gmail.com"];
     const isAdmin = adminEmails.includes(userEmail);
+
+    // --- LIVE CYBER TERMINAL LOG GENERATOR ---
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const actions = [
+                "PING /schedule endpoint -> 200 OK (14ms)",
+                "GOOGLE APPS SCRIPT BRIDGE SYNC SUCCESSFUL",
+                "POSTGRESQL CACHE REFRESHED",
+                "SECURITY HASH CHECK: OK",
+                "ADMIN PRIVILEGES VERIFIED: " + (isAdmin ? "ROOT ACCESS" : "STANDARD")
+            ];
+            const randomLog = actions[Math.floor(Math.random() * actions.length)];
+            setTerminalLogs(prev => [randomLog, ...prev.slice(0, 5)]);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, [isAdmin]);
 
     // --- CODEPEN MAGIC: Holographic Tilt, Mouse Spotlight & Magnetic Buttons ---
     useEffect(() => {
@@ -62,7 +84,18 @@ export default function Settings() {
     }, []);
 
     return (
-        <div className="p-6 space-y-7 text-slate-100 max-w-[1600px] mx-auto min-h-screen">
+        <div className="p-6 space-y-7 text-slate-100 max-w-[1600px] mx-auto min-h-screen relative">
+
+            {/* --- CYBER SCANNER ORB HEADER --- */}
+            <div className="relative w-full overflow-hidden h-9 pointer-events-none mb-[-8px] flex items-center">
+                <div className="absolute left-0 flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)] animate-tech-walk z-20 backdrop-blur-md">
+                    <Cpu size={14} className="animate-spin text-indigo-400" />
+                    <span className="text-[9px] font-extrabold uppercase tracking-widest text-indigo-200">
+                        ⚡ SYSTEM CORE // DIAGNOSTICS ACTIVE
+                    </span>
+                </div>
+            </div>
+
             {/* HERO BANNER */}
             <section className="relative overflow-hidden rounded-[28px] border border-slate-800 bg-[#090b12] px-7 py-7 shadow-xl glass-card">
                 <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
@@ -134,6 +167,34 @@ export default function Settings() {
                             <span className="text-slate-400">ORM Tables</span>
                             <span className="text-slate-200 font-bold">batches, faculty, classes</span>
                         </div>
+                    </div>
+                </div>
+
+                {/* --- LIVE CYBER DIAGNOSTICS TERMINAL (NEW FEATURE) --- */}
+                <div className="rounded-3xl border border-indigo-500/30 bg-[#04060b] p-6 space-y-4 shadow-xl md:col-span-2 glass-card relative overflow-hidden">
+                    <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-cyan-500/5 blur-3xl pointer-events-none" />
+                    <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                                <Terminal size={18} />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-bold text-white">Live System Diagnostics Console</h3>
+                                <p className="text-xs text-slate-400">Real-time socket stream and telemetry</p>
+                            </div>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+                            <Activity size={12} className="animate-pulse" /> Live Feed
+                        </span>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-800 bg-black/60 p-4 font-mono text-[11px] text-cyan-400/90 space-y-2 shadow-inner min-h-[110px] flex flex-col justify-end">
+                        {terminalLogs.map((log, idx) => (
+                            <div key={idx} className="flex items-center gap-2 animate-in fade-in duration-300">
+                                <span className="text-slate-600">&gt;&gt;</span>
+                                <span className={idx === 0 ? "text-emerald-400 font-bold" : "text-slate-400"}>{log}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
 

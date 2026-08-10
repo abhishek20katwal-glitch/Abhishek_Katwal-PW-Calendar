@@ -13,6 +13,7 @@ import {
     Users,
     Zap,
     X,
+    Bot,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -1151,7 +1152,17 @@ function Dashboard() {
     }
 
     return (
-        <div className="min-h-screen space-y-7 p-2">
+        <div className="min-h-screen space-y-7 p-2 relative">
+
+            {/* --- ANIME / SCI-FI RUNNING TECH BOT (VP-BOT) --- */}
+            <div className="relative w-full overflow-hidden h-8 pointer-events-none mb-[-10px]">
+                <div className="absolute top-0 left-0 flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.4)] animate-tech-walk z-20 backdrop-blur-md">
+                    <Bot size={14} className="animate-bounce text-cyan-400" />
+                    <span className="text-[9px] font-extrabold uppercase tracking-widest text-cyan-300">
+                        ⚡ VP-BOT // SYSTEM ONLINE [60FPS]
+                    </span>
+                </div>
+            </div>
 
             {/* HERO */}
 
