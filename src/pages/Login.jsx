@@ -9,71 +9,83 @@ import { ShieldCheck, Sparkles, Gamepad2, Play, RotateCcw } from "lucide-react";
 export default function Login() {
     const navigate = useNavigate();
 
-    // --- MINI ARCADE GAME STATES ---
-    const [isPlaying, setIsPlaying] = useState(false);
+    // --- CYBER GRID RACER ARCADE GAME STATES ---
+    const [gameActive, setGameActive] = useState(false);
     const [score, setScore] = useState(0);
     const [highScore, setHighScore] = useState(0);
-    const [gameOver, setGameOver] = useState(false);
-    const shipYRef = useRef(120);
-    const obstacleXRef = useRef(300);
-    const obstacleHRef = useRef(40);
-    const requestRef = useRef(null);
+    const [isGameOver, setIsGameOver] = useState(false);
 
-    // --- GAME LOOP ---
+    // Player & Obstacle coordinates inside a 300x120 grid
+    const playerXRef = useRef(140);
+    const obstaclesRef = useRef([
+        { x: 50, y: -40, speed: 3 },
+        { x: 180, y: -160, speed: 4 },
+        { x: 240, y: -280, speed: 3.5 }
+    ]);
+    const animFrameRef = useRef(null);
+
+    // Smooth Game Loop (60 FPS, Zero Lag)
     useEffect(() => {
-        if (!isPlaying || gameOver) return;
+        if (!gameActive || isGameOver) return;
 
-        const updateGame = () => {
-            obstacleXRef.current -= 4;
-            if (obstacleXRef.current < -20) {
-                obstacleXRef.current = 320;
-                obstacleHRef.current = Math.floor(Math.random() * 50) + 30;
-                setScore(s => {
-                    const newS = s + 10;
-                    if (newS > highScore) setHighScore(newS);
-                    return newS;
-                });
-            }
+        const runGame = () => {
+            obstaclesRef.current = obstaclesRef.current.map(obs => {
+                let newY = obs.y + obs.speed;
+                // Reset obstacle when it goes off screen
+                if (newY > 120) {
+                    newY = -Math.floor(Math.random() * 100) - 40;
+                    setScore(s => {
+                        const updated = s + 5;
+                        if (updated > highScore) setHighScore(updated);
+                        return updated;
+                    });
+                }
 
-            // Collision check (Ship box vs Obstacle box)
-            if (
-                obstacleXRef.current < 55 &&
-                obstacleXRef.current > 15 &&
-                shipYRef.current > (160 - obstacleHRef.current)
-            ) {
-                setGameOver(true);
-                setIsPlaying(false);
-            }
+                // Collision detection (Player at X: playerXRef, Y: 95 | Obstacle X: obs.x, Y: newY)
+                if (
+                    newY >= 80 && newY <= 110 &&
+                    Math.abs(obs.x - playerXRef.current) < 22
+                ) {
+                    setIsGameOver(true);
+                    setGameActive(false);
+                }
 
-            requestRef.current = requestAnimationFrame(updateGame);
+                return { ...obs, y: newY };
+            });
+
+            animFrameRef.current = requestAnimationFrame(runGame);
         };
 
-        requestRef.current = requestAnimationFrame(updateGame);
-        return () => cancelAnimationFrame(requestRef.current);
-    }, [isPlaying, gameOver, highScore]);
+        animFrameRef.current = requestAnimationFrame(runGame);
+        return () => cancelAnimationFrame(animFrameRef.current);
+    }, [gameActive, isGameOver, highScore]);
 
-    // Keyboard controls for game
+    // Smooth Keyboard Controls for Game
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.code === "Space" || e.code === "ArrowUp") {
+            if (!gameActive) return;
+            if (e.code === "ArrowLeft" || e.code === "KeyA") {
                 e.preventDefault();
-                if (!isPlaying && !gameOver) {
-                    setIsPlaying(true);
-                } else if (isPlaying) {
-                    shipYRef.current = Math.max(10, shipYRef.current - 35);
-                }
+                playerXRef.current = Math.max(15, playerXRef.current - 20);
+            } else if (e.code === "ArrowRight" || e.code === "KeyD") {
+                e.preventDefault();
+                playerXRef.current = Math.min(285, playerXRef.current + 20);
             }
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isPlaying, gameOver]);
+    }, [gameActive]);
 
-    const restartGame = () => {
+    const startArcade = () => {
         setScore(0);
-        setGameOver(false);
-        obstacleXRef.current = 300;
-        shipYRef.current = 120;
-        setIsPlaying(true);
+        setIsGameOver(false);
+        playerXRef.current = 140;
+        obstaclesRef.current = [
+            { x: 50, y: -40, speed: 3.5 },
+            { x: 170, y: -150, speed: 4.5 },
+            { x: 250, y: -260, speed: 4 }
+        ];
+        setGameActive(true);
     };
 
     // --- CODEPEN MAGIC: Holographic Tilt & Mouse Spotlight ---
@@ -130,7 +142,7 @@ export default function Login() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-[#070912] p-4 text-white relative overflow-hidden flex-col gap-6">
+        <div className="flex min-h-screen items-center justify-center bg-[#070912] p-4 text-white relative overflow-hidden flex-col gap-5">
             {/* Ambient Background Glow Orbs */}
             <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-indigo-600/10 blur-3xl" />
             <div className="pointer-events-none absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-violet-600/10 blur-3xl" />
@@ -150,7 +162,7 @@ export default function Login() {
                 <h1 className="text-2xl font-bold mb-1 text-white">PW Calendar Pro</h1>
                 <p className="text-xs text-slate-400 mb-6">Authorized personnel only. Please sign in with Google credentials.</p>
 
-                <div className="flex justify-center transition hover:scale-[1.02] mb-5">
+                <div className="flex justify-center transition hover:scale-[1.02] mb-3">
                     <GoogleLogin
                         onSuccess={handleGoogleSuccess}
                         onError={() => toast.error("Google Login Failed. Try again.")}
@@ -161,11 +173,11 @@ export default function Login() {
                 </div>
             </div>
 
-            {/* --- CYBER ARCADE EASTER EGG GAME WIDGET --- */}
-            <div className="w-full max-w-md rounded-2xl border border-slate-800/80 bg-[#090b12]/90 p-4 shadow-xl glass-card relative z-10 text-center">
+            {/* --- CYBER GRID RACER ARCADE GAME WIDGET --- */}
+            <div className="w-full max-w-md rounded-2xl border border-slate-800/80 bg-[#090b12]/95 p-4 shadow-xl glass-card relative z-10 text-center">
                 <div className="flex items-center justify-between mb-2">
                     <span className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-cyan-400">
-                        <Gamepad2 size={13} /> Cyber Dodger Arcade
+                        <Gamepad2 size={13} /> Cyber Grid Racer
                     </span>
                     <div className="flex gap-3 text-[11px] font-mono">
                         <span className="text-slate-400">SCORE: <strong className="text-white">{score}</strong></span>
@@ -174,54 +186,74 @@ export default function Login() {
                 </div>
 
                 {/* GAME SCREEN */}
-                <div className="relative h-28 w-full rounded-xl border border-slate-800 bg-black/60 overflow-hidden flex items-center">
-                    {/* Grid lines background */}
-                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
+                <div className="relative h-28 w-full rounded-xl border border-slate-800 bg-black/80 overflow-hidden flex items-center shadow-inner">
+                    {/* Retro Cyber Grid Lines */}
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e1b4b_1px,transparent_1px),linear-gradient(to_bottom,#1e1b4b_1px,transparent_1px)] bg-[size:25px_25px] opacity-30" />
 
-                    {!isPlaying && !gameOver && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-xs z-10">
-                            <p className="text-[11px] font-bold text-slate-300 mb-2">Press SPACE or Click to Play while waiting!</p>
+                    {!gameActive && !isGameOver && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-xs z-20">
+                            <p className="text-[11px] font-bold text-slate-200 mb-2">Play Cyber Grid Racer while you sign in!</p>
                             <button
-                                onClick={() => setIsPlaying(true)}
-                                className="flex items-center gap-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 px-4 py-1.5 text-[10px] font-extrabold text-slate-950 transition cursor-pointer"
+                                onClick={startArcade}
+                                className="flex items-center gap-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 px-4 py-1.5 text-[10px] font-extrabold text-slate-950 transition cursor-pointer shadow-lg shadow-cyan-500/20"
                             >
-                                <Play size={12} /> Start Arcade
+                                <Play size={12} /> Launch Game
                             </button>
                         </div>
                     )}
 
-                    {gameOver && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-xs z-10">
-                            <p className="text-xs font-bold text-rose-400 mb-1">CRASH DETECTED!</p>
+                    {isGameOver && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/85 backdrop-blur-xs z-20">
+                            <p className="text-xs font-bold text-rose-400 mb-1">HULL BREACH - GAME OVER</p>
+                            <p className="text-[10px] text-slate-400 mb-2">Final Score: <span className="text-white font-bold">{score}</span></p>
                             <button
-                                onClick={restartGame}
-                                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-4 py-1.5 text-[10px] font-bold text-white transition cursor-pointer"
+                                onClick={startArcade}
+                                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-4 py-1.5 text-[10px] font-bold text-white transition cursor-pointer shadow-lg shadow-indigo-600/30"
                             >
-                                <RotateCcw size={12} /> Play Again
+                                <RotateCcw size={12} /> Retry Run
                             </button>
                         </div>
                     )}
 
-                    {/* PLAYER SHIP */}
+                    {/* PLAYER SHIP (Controlled via Left/Right Arrow keys or on-screen buttons) */}
                     <div
-                        className="absolute left-10 w-5 h-5 rounded-md bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.8)] transition-all duration-75 flex items-center justify-center text-[9px] font-bold text-slate-950"
-                        style={{ bottom: `${shipYRef.current}px` }}
-                        onClick={() => { if (isPlaying) shipYRef.current = Math.max(10, shipYRef.current - 30); }}
+                        className="absolute bottom-2 w-6 h-4 rounded bg-gradient-to-t from-cyan-500 to-indigo-500 shadow-[0_0_12px_rgba(34,211,238,0.9)] transition-none flex items-center justify-center text-[8px] font-bold text-black"
+                        style={{ left: `${playerXRef.current}px` }}
                     >
                         ▲
                     </div>
 
-                    {/* OBSTACLE */}
-                    <div
-                        className="absolute w-4 rounded-t-md bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.7)]"
-                        style={{
-                            right: `${obstacleXRef.current}px`,
-                            bottom: '0px',
-                            height: `${obstacleHRef.current}px`
-                        }}
-                    />
+                    {/* FALLING OBSTACLES */}
+                    {obstaclesRef.current.map((obs, idx) => (
+                        <div
+                            key={idx}
+                            className="absolute w-5 h-5 rounded-md bg-rose-600 shadow-[0_0_10px_rgba(244,63,94,0.8)] border border-rose-400/40"
+                            style={{
+                                left: `${obs.x}px`,
+                                top: `${obs.y}px`
+                            }}
+                        />
+                    ))}
                 </div>
-                <p className="text-[10px] text-slate-500 mt-2">Tap/Click or press SPACE to jump your cyber-ship over obstacles.</p>
+
+                {/* Mobile / Click Controls helper */}
+                <div className="mt-3 flex items-center justify-between text-[10px] text-slate-400">
+                    <span>Use <strong className="text-slate-200">←</strong> / <strong className="text-slate-200">→</strong> keys to dodge</span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => { if (gameActive) playerXRef.current = Math.max(15, playerXRef.current - 25); }}
+                            className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold"
+                        >
+                            ◀ LEFT
+                        </button>
+                        <button
+                            onClick={() => { if (gameActive) playerXRef.current = Math.min(285, playerXRef.current + 25); }}
+                            className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold"
+                        >
+                            RIGHT ▶
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
