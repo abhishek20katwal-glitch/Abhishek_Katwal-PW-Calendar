@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
@@ -93,7 +93,7 @@ export default function Login() {
                 <h1 className="text-2xl font-bold mb-1 text-white">PW Calendar Pro</h1>
                 <p className="text-xs text-slate-400 mb-8">Authorized personnel only. Please sign in with Google credentials.</p>
 
-                <div className="flex justify-center transition hover:scale-[1.02]">
+                <div className="flex justify-center transition hover:scale-[1.02] mb-6">
                     <GoogleLogin
                         onSuccess={handleGoogleSuccess}
                         onError={() => toast.error("Google Login Failed. Try again.")}
@@ -101,6 +101,11 @@ export default function Login() {
                         shape="pill"
                         size="large"
                     />
+                </div>
+
+                {/* CREATOR CREDIT */}
+                <div className="border-t border-slate-800/80 pt-4 text-[11px] text-slate-500">
+                    Engineered & Maintained by <strong className="text-slate-300">Abhishek Katwal</strong>
                 </div>
             </div>
         </div>

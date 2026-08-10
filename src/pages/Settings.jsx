@@ -1,6 +1,6 @@
 import api from "@/api/axios";
 import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, Database, Server, Bell, ShieldCheck, Sliders, ToggleLeft, ToggleRight, Cpu, Terminal, Activity } from "lucide-react";
+import { Settings as SettingsIcon, Database, Server, Bell, ShieldCheck, Sliders, ToggleLeft, ToggleRight, Cpu, Terminal, Activity, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Settings() {
@@ -26,13 +26,13 @@ export default function Settings() {
                 "GOOGLE APPS SCRIPT BRIDGE SYNC SUCCESSFUL",
                 "POSTGRESQL CACHE REFRESHED",
                 "SECURITY HASH CHECK: OK",
-                "ADMIN PRIVILEGES VERIFIED: " + (isAdmin ? "ROOT ACCESS" : "STANDARD")
+                "SYSTEM ARCHITECT VERIFIED: ABHISHEK KATWAL [ROOT]"
             ];
             const randomLog = actions[Math.floor(Math.random() * actions.length)];
             setTerminalLogs(prev => [randomLog, ...prev.slice(0, 5)]);
         }, 4000);
         return () => clearInterval(interval);
-    }, [isAdmin]);
+    }, []);
 
     // --- CODEPEN MAGIC: Holographic Tilt, Mouse Spotlight & Magnetic Buttons ---
     useEffect(() => {
@@ -116,33 +116,25 @@ export default function Settings() {
 
             {/* SETTINGS CARDS GRID */}
             <div className="grid gap-5 md:grid-cols-2">
-                {/* API CONFIGURATION */}
+                {/* PLATFORM OWNERSHIP & CREATOR CARD */}
                 <div className="rounded-3xl border border-slate-800/80 bg-[#0d111a] p-6 space-y-4 shadow-lg glass-card">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                            <Server size={20} />
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                            <UserCheck size={20} />
                         </div>
                         <div>
-                            <h3 className="text-base font-bold text-white">API Configuration</h3>
-                            <p className="text-xs text-slate-400">FastAPI & Google Apps Script bridge</p>
+                            <h3 className="text-base font-bold text-white">Platform Ownership</h3>
+                            <p className="text-xs text-slate-400">System Architect & Creator</p>
                         </div>
                     </div>
                     <div className="space-y-3 pt-2 text-xs">
-                        <div>
-                            <label className="block text-slate-400 mb-1">Backend Base URL</label>
-                            <input
-                                readOnly
-                                value="http://localhost:8000"
-                                className="h-10 w-full rounded-xl border border-slate-800 bg-slate-900/60 px-3 text-slate-300 outline-none"
-                            />
+                        <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/50 p-3">
+                            <span className="text-slate-400">Lead Developer</span>
+                            <span className="text-violet-400 font-bold">Abhishek Katwal</span>
                         </div>
-                        <div>
-                            <label className="block text-slate-400 mb-1">Schedule Sync Endpoint</label>
-                            <input
-                                readOnly
-                                value="http://localhost:8000/schedule"
-                                className="h-10 w-full rounded-xl border border-slate-800 bg-slate-900/60 px-3 text-slate-300 outline-none"
-                            />
+                        <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/50 p-3">
+                            <span className="text-slate-400">Organization</span>
+                            <span className="text-slate-200 font-bold">PhysicsWallah Limited</span>
                         </div>
                     </div>
                 </div>
@@ -170,7 +162,7 @@ export default function Settings() {
                     </div>
                 </div>
 
-                {/* --- LIVE CYBER DIAGNOSTICS TERMINAL (NEW FEATURE) --- */}
+                {/* LIVE CYBER DIAGNOSTICS TERMINAL */}
                 <div className="rounded-3xl border border-indigo-500/30 bg-[#04060b] p-6 space-y-4 shadow-xl md:col-span-2 glass-card relative overflow-hidden">
                     <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-cyan-500/5 blur-3xl pointer-events-none" />
                     <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
